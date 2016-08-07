@@ -1,3 +1,4 @@
+// Rescue as much as possible from your Picturelife account
 package main
 
 import (
@@ -17,7 +18,6 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/cheggaaa/pb"
-	"github.com/morphar/rescuelife/minicrawler"
 )
 
 type Media struct {
@@ -126,7 +126,7 @@ func main() {
 	}
 
 	// Instantiate the crawler
-	client := minicrawler.New()
+	client := NewCrawler()
 
 	// Ask for email and password
 	signinValues := getCredentials()
@@ -330,7 +330,7 @@ func main() {
 	fmt.Println("\tFailed: ", fails)
 }
 
-func fetchMedia(client *minicrawler.Crawler, media *Media) {
+func fetchMedia(client *Crawler, media *Media) {
 	media.Retries += 1
 	media.Status = "started"
 

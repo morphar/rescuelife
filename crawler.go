@@ -1,7 +1,4 @@
-// minicrawler is a super simple crawler.
-// It's basically a wrapper around http.Client to make some things easier
-// It's sole purpose is to do the fetching in Picture Life Rescuer.
-package minicrawler
+package main
 
 import (
 	"fmt"
@@ -23,7 +20,7 @@ type Crawler struct {
 	UserAgent string
 }
 
-func New() Crawler {
+func NewCrawler() Crawler {
 	jar, _ := cookiejar.New(nil)
 	return Crawler{
 		Client:    http.Client{Jar: jar},

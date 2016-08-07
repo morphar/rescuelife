@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
 
@@ -328,7 +329,11 @@ func main() {
 			mediaLock.Unlock()
 			<-ch
 		}(ch, i, media)
+	}
 
+	// Wait for the last routines to be done
+	for len(ch) > 0 {
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	mediaLock.Lock()

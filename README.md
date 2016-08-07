@@ -16,7 +16,7 @@ Install:
 ```go get github.com/morphar/rescuelife```  
 
 Run:  
-```rescuelife help```
+```rescuelife -help```
 
 
 ### If you are on OS X / macOS
@@ -27,7 +27,7 @@ In the Finder, double click on the downloaded file.
 
 Alternative:  
 Open your terminal, change dir to where you downloaded the binary, then run:  
-```./rescuelife help```
+```./rescuelife -help```
 
 ## Notes
 It seems like some pictures and videos are totally gone from the service.  

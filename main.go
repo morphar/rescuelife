@@ -71,13 +71,17 @@ var (
 	indexPath string = "pl_index.json"
 
 	// Flags
-	retry bool = false // Retry failed images and videos?
+	retryFlag  bool = false // Retry failed images and videos?
+	helpFlag   bool = false // Retry failed images and videos?
+	statusFlag bool = false // Retry failed images and videos?
 )
 
 func init() {
 	var err error
 
-	flag.BoolVar(&retry, "retry", retry, "Retry failed images and videos?")
+	flag.BoolVar(&retryFlag, "retry", retryFlag, "Retry failed images and videos?")
+	flag.BoolVar(&helpFlag, "help", helpFlag, "Print help text")
+	flag.BoolVar(&statusFlag, "status", statusFlag, "Print out current status")
 
 	loginUrl, err = url.Parse("http://picturelife.com/login")
 	if err != nil {
@@ -111,12 +115,12 @@ func init() {
 func main() {
 	flag.Parse()
 
-	if len(os.Args) > 1 && (strings.Contains(os.Args[1], "help") || strings.Contains(os.Args[1], "-h")) {
+	if helpFlag {
 		printHelp()
 		return
 	}
 
-	if len(os.Args) > 1 && (strings.Contains(os.Args[1], "status") || strings.Contains(os.Args[1], "-s")) {
+	if statusFlag {
 		printStatus()
 		return
 	}
@@ -258,7 +262,7 @@ func main() {
 	for _, media := range allMedia {
 		if media.Status == "done" {
 			progressCount--
-		} else if !retry && media.Status == "failed" {
+		} else if !retryFlag && media.Status == "failed" {
 			progressCount--
 		}
 	}
@@ -276,7 +280,7 @@ func main() {
 			continue
 		}
 
-		if !retry && allMedia[i].Status == "failed" {
+		if !retryFlag && allMedia[i].Status == "failed" {
 			fails += 1
 			continue
 		}
@@ -382,7 +386,7 @@ func printHelp() {
 	flag.PrintDefaults()
 	fmt.Println("")
 	fmt.Println("Usage:")
-	fmt.Println(`./rescuelife -retry=true`)
+	fmt.Println(`./rescuelife -retry`)
 	fmt.Println("")
 }
 

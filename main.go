@@ -21,25 +21,11 @@ import (
 )
 
 type Media struct {
-	Id             string `json:"id"`
-	MediaType      string `json:"media_type"`
-	Format         string `json:"format"`
-	Processed      bool   `json:"processed"`
-	CreatedAt      int    `json:"created_at"`
-	UpdatedAt      int    `json:"updated_at"`
-	TakenAt        int    `json:"taken_at"`
-	Width          int    `json:"width"`
-	Height         int    `json:"height"`
-	Orientation    int    `json:"orientation"`
-	Privacy        int    `json:"privacy"`
-	IsBestPhoto    bool   `json:"is_best_photo"`
-	TimeZoneOffset int    `json:"time_zone_offset"`
-	Hidden         bool   `json:"hidden"`
-	Visible        bool   `json:"visible"`
-	Filesize       int    `json:"filesize"`
-	BucketId       int    `json:"bucket_id"`
-	Status         string `json:"status"`
-	Retries        int    `json:"retries"`
+	Id        string `json:"id"`
+	MediaType string `json:"media_type"`
+	Format    string `json:"format"`
+	Status    string `json:"status"`
+	Retries   int    `json:"retries"`
 }
 
 type APIResponse struct {
@@ -72,8 +58,9 @@ var (
 
 	// Flags
 	retryFlag  bool = false // Retry failed images and videos?
-	helpFlag   bool = false // Retry failed images and videos?
-	statusFlag bool = false // Retry failed images and videos?
+	helpFlag   bool = false // Print help text
+	statusFlag bool = false // Print current status
+	resetFlag  bool = false // Reset everything and start over
 )
 
 func init() {
@@ -81,7 +68,8 @@ func init() {
 
 	flag.BoolVar(&retryFlag, "retry", retryFlag, "Retry failed images and videos?")
 	flag.BoolVar(&helpFlag, "help", helpFlag, "Print help text")
-	flag.BoolVar(&statusFlag, "status", statusFlag, "Print out current status")
+	flag.BoolVar(&statusFlag, "status", statusFlag, "Print current status")
+	flag.BoolVar(&resetFlag, "reset", resetFlag, "Reset everything and start over")
 
 	loginUrl, err = url.Parse("http://picturelife.com/login")
 	if err != nil {
@@ -122,6 +110,20 @@ func main() {
 
 	if statusFlag {
 		printStatus()
+		return
+	}
+
+	if resetFlag {
+		fmt.Print("Resetting...")
+
+		if _, err := os.Stat(indexPath); err == nil {
+			os.Remove(indexPath)
+		}
+
+		if _, err := os.Stat(mediaPath); err == nil {
+			os.RemoveAll(mediaPath)
+		}
+		fmt.Println(" Done!")
 		return
 	}
 
@@ -167,7 +169,6 @@ func main() {
 	// So far, so good... Now extract the index json, if it hasn't already been done
 
 	// If the JSON index file does not exist, we'll fetch it from the API and create it
-
 	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
 		fmt.Println("\nTrying to extract index of all files...")
 
@@ -226,8 +227,11 @@ func main() {
 
 		progress.FinishPrint("Done fetching JSON index")
 
-		mediaJson, _ := json.Marshal(allMedia)
+		fmt.Print("Writing status file...")
+		mediaJson, err := json.Marshal(allMedia)
+
 		err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
+		fmt.Println(" Done!")
 
 		if err != nil {
 			fmt.Println("ERROR! Unable to write JSON index file to disk. Sorry...")
@@ -250,13 +254,9 @@ func main() {
 	}
 
 	var allMedia []Media
-
 	json.Unmarshal(src, &allMedia)
 
 	fmt.Println("\nTrying to extract pictures and videos...")
-
-	ch := make(chan bool, 10)
-	mediaLock := sync.Mutex{}
 
 	progressCount := len(allMedia)
 	for i, media := range allMedia {
@@ -276,6 +276,9 @@ func main() {
 	mediaJson, _ := json.Marshal(allMedia)
 	err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
 
+	ch := make(chan bool, 10)
+	mediaLock := sync.Mutex{}
+
 	progress := pb.New(progressCount)
 	progress.ShowCounters = true
 	progress.ShowTimeLeft = true
@@ -294,12 +297,28 @@ func main() {
 			continue
 		}
 
+		if i > 0 && i%10 == 0 {
+			mediaLock.Lock()
+			mediaJson, _ := json.Marshal(allMedia)
+			err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
+			mediaLock.Unlock()
+
+			if err != nil {
+				fmt.Println("ERROR! Unable to write update JSON index file to disk. Sorry...")
+				fmt.Println("Please go to GitHub and open an issue.")
+				os.Exit(0)
+			}
+		}
+
 		ch <- true
 
-		go func(index int, media *Media) {
-			fetchMedia(&client, media)
+		go func(ch chan bool, index int, media Media) {
 			mediaLock.Lock()
-			allMedia[index] = *media
+			allMedia[index].Status = "started"
+			mediaLock.Unlock()
+			fetchMedia(&client, &media)
+			mediaLock.Lock()
+			allMedia[index] = media
 			if media.Status == "done" {
 				success += 1
 			} else {
@@ -308,22 +327,14 @@ func main() {
 			progress.Increment()
 			mediaLock.Unlock()
 			<-ch
-		}(i, &media)
+		}(ch, i, media)
 
-		if i > 0 && i%10 == 0 {
-			mediaJson, _ := json.Marshal(allMedia)
-			err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
-
-			if err != nil {
-				fmt.Println("ERROR! Unable to write update JSON index file to disk. Sorry...")
-				fmt.Println("Please go to GitHub and open an issue.")
-				os.Exit(0)
-			}
-		}
 	}
 
+	mediaLock.Lock()
 	mediaJson, _ = json.Marshal(allMedia)
 	err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
+	mediaLock.Unlock()
 
 	if err != nil {
 		fmt.Println("ERROR! Unable to write update JSON index file to disk. Sorry...")

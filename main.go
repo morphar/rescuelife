@@ -273,6 +273,9 @@ func main() {
 		}
 	}
 
+	mediaJson, _ := json.Marshal(allMedia)
+	err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
+
 	progress := pb.New(progressCount)
 	progress.ShowCounters = true
 	progress.ShowTimeLeft = true
@@ -319,7 +322,7 @@ func main() {
 		}
 	}
 
-	mediaJson, _ := json.Marshal(allMedia)
+	mediaJson, _ = json.Marshal(allMedia)
 	err = ioutil.WriteFile(indexPath, mediaJson, filePerm)
 
 	if err != nil {
@@ -389,6 +392,12 @@ func fetchMedia(client *Crawler, media *Media) {
 func getMediaFilename(media *Media) (filename string) {
 	extension := strings.ToLower(media.Format)
 	extension = strings.Replace(extension, "jpeg", "jpg", 1)
+	if strings.Trim(extension, " ") == "" {
+		if media.MediaType == "Video" {
+			// Assume mov
+			extension = "mov"
+		}
+	}
 	filename = media.Id + "." + extension
 	return
 }

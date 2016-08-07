@@ -12,7 +12,8 @@ Run:
 
 
 ### If you are on OS X / macOS
-You can download a pre-build binary [here](https://github.com/morphar/rescuelife/releases).
+You can download a pre-build binary [here](https://github.com/morphar/rescuelife/releases).  
+Or [direct link](https://github.com/morphar/rescuelife/releases/download/0.1.0/rescuelife) to the binary.
 
 In the Finder, double click on the downloaded file.
 

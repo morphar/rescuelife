@@ -264,6 +264,8 @@ func main() {
 
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			allMedia[i].Status = ""
+		} else if media.Status == "started" {
+			allMedia[i].Status = ""
 		} else if media.Status == "done" {
 			progressCount--
 		} else if !retryFlag && media.Status == "failed" {

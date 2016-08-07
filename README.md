@@ -32,5 +32,5 @@ Open your terminal, change dir to where you downloaded the binary, then run:
 ## Notes
 It seems like some pictures and videos are totally gone from the service.  
 This is why the applications skips already tried and failed images and videos.  
-You can retry failed images and videos, by adding the flag: ```-retry=true```
+You can retry failed images and videos, by adding the flag: ```-retry```
 

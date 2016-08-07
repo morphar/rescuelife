@@ -116,6 +116,11 @@ func main() {
 		return
 	}
 
+	if len(os.Args) > 1 && (strings.Contains(os.Args[1], "status") || strings.Contains(os.Args[1], "-s")) {
+		printStatus()
+		return
+	}
+
 	// Instantiate the crawler
 	client := minicrawler.New()
 
@@ -252,9 +257,9 @@ func main() {
 	progressCount := len(allMedia)
 	for _, media := range allMedia {
 		if media.Status == "done" {
-			progressCount -= 1
+			progressCount--
 		} else if !retry && media.Status == "failed" {
-			progressCount -= 1
+			progressCount--
 		}
 	}
 
@@ -378,6 +383,47 @@ func printHelp() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println(`./rescuelife -retry=true`)
+	fmt.Println("")
+}
+
+func printStatus() {
+	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+		fmt.Println("ERROR! Unable to find the JSON index file from disk. Sorry...")
+		return
+	}
+
+	src, err := ioutil.ReadFile(indexPath)
+	if err != nil {
+		fmt.Println("ERROR! Unable to read the JSON index file from disk. Sorry...")
+		return
+	}
+
+	var allMedia []Media
+
+	json.Unmarshal(src, &allMedia)
+
+	var failed, started, done, waiting int
+	total := len(allMedia)
+	for _, media := range allMedia {
+		switch media.Status {
+		case "done":
+			done++
+		case "started":
+			started++
+		case "failed":
+			failed++
+		default:
+			waiting++
+		}
+	}
+
+	fmt.Println("\nStatus for fetching")
+	fmt.Println("-----------------------------")
+	fmt.Println("Succeeded:", done)
+	fmt.Println("Failed:   ", failed)
+	fmt.Println("Fetching: ", started)
+	fmt.Println("Waiting:  ", waiting)
+	fmt.Println("Total:    ", total)
 	fmt.Println("")
 }
 

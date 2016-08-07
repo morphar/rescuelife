@@ -364,7 +364,7 @@ func fetchMedia(client *minicrawler.Crawler, media *Media) {
 		return
 	}
 
-	if n != int64(media.Filesize) {
+	if n < 1000 {
 		media.Status = "failed"
 		out.Close()
 		res.Body.Close()

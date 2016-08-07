@@ -259,8 +259,12 @@ func main() {
 	mediaLock := sync.Mutex{}
 
 	progressCount := len(allMedia)
-	for _, media := range allMedia {
-		if media.Status == "done" {
+	for i, media := range allMedia {
+		filePath := mediaPath + "/" + getMediaFilename(&media)
+
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			allMedia[i].Status = ""
+		} else if media.Status == "done" {
 			progressCount--
 		} else if !retryFlag && media.Status == "failed" {
 			progressCount--
@@ -334,9 +338,8 @@ func fetchMedia(client *Crawler, media *Media) {
 	media.Retries += 1
 	media.Status = "started"
 
-	extension := strings.ToLower(media.Format)
-	extension = strings.Replace(extension, "jpeg", "jpg", 1)
-	filename := media.Id + "." + extension
+	filename := getMediaFilename(media)
+
 	filePath := mediaPath + "/" + filename
 	url := originalUrl.String() + media.Id
 
@@ -379,6 +382,13 @@ func fetchMedia(client *Crawler, media *Media) {
 		out.Close()
 		res.Body.Close()
 	}
+}
+
+func getMediaFilename(media *Media) (filename string) {
+	extension := strings.ToLower(media.Format)
+	extension = strings.Replace(extension, "jpeg", "jpg", 1)
+	filename = media.Id + "." + extension
+	return
 }
 
 func printHelp() {

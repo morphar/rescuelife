@@ -13,7 +13,7 @@ You can safely re-run the application.
 
 ### If you are on OS X / macOS
 You can download a pre-build binary [here](https://github.com/morphar/rescuelife/releases).  
-Or [direct link](https://github.com/morphar/rescuelife/releases/tag/0.2.1/rescuelife) to the binary.
+Or [direct link](https://github.com/morphar/rescuelife/releases/download/0.2.1/rescuelife) to the binary.
 
 In the Finder, double click on the downloaded file.
 

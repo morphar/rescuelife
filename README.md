@@ -30,8 +30,7 @@ Run:
 
 ## Notes
 It seems like some pictures and videos are totally gone from the service.  
-My personal result was 4656 out of 9504 files.  
 This is why the applications skips already tried and failed images and videos.  
+You can retry failed images and videos, by adding the flag: ```-retry```  
 
-You can retry failed images and videos, by adding the flag: ```-retry```
-
+My personal final result was 4656 out of 9504 files.

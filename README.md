@@ -17,9 +17,17 @@ Or [direct link](https://github.com/morphar/rescuelife/releases/download/0.2.1/r
 
 In the Finder, double click on the downloaded file.
 
-Alternative:  
-Open your terminal, change dir to where you downloaded the binary, then run:  
-```./rescuelife -help```
+##### If that doesn't work:
+Open Terminal app, change dir to where you downloaded the binary, then run:  
+```
+cd Downloads        # Takes you to your download dir
+chmod +x rescuelife # This will make the file executable
+./rescuelife -help  # Help text about what flags can be used
+./rescuelife        # This will run the program
+```
+
+You can always run the program again to see if any more files has become avialable:
+```./rescuelife -retry```
 
 ### If you have Go(lang) installed
 Install:  

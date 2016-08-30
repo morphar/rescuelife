@@ -1,5 +1,6 @@
 # OBSOLETE!
-## After Picturelife shut down, this tool is no longer functional
+After Picturelife shut down, this tool is no longer functional  
+You can try out the new [SmugMugMugger](https://github.com/morphar/SmugMugMugger) tool - hope it helps you! :)
 
 # rescuelife
 Rescue as much as possible from your Picturelife account

@@ -1,3 +1,6 @@
+# OBSOLETE!
+## After Picturelife shut down, this tool is no longer functional
+
 # rescuelife
 Rescue as much as possible from your Picturelife account
 
